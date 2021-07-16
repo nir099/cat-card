@@ -56,18 +56,18 @@ const getTwoFunnyCats = async ({
   size = 100,
 }) => {
   try {
-    const firstReq = catUrlMaker({ path: greeting, width, height, color, size });
-    const secondReq = catUrlMaker({ path: who, width, height, color, size });
-    const firstCat = await sendCatRequest('firstCat', firstReq);
-    const secondCat = await sendCatRequest('secondCat', secondReq);
-    const data = await makeFinalCatImage({
+    const firstCatUrl = catUrlMaker({ path: greeting, width, height, color, size });
+    const secondCatUrl = catUrlMaker({ path: who, width, height, color, size });
+    const firstCat = await sendCatRequest('firstCat', firstCatUrl);
+    const secondCat = await sendCatRequest('secondCat', secondCatUrl);
+    const finalCatImage = await makeFinalCatImage({
       firstCat,
       secondCat,
       width,
       height,
     });
     const fileOut = join(process.cwd(), `/cat-card.jpg`);
-    await writeFile(fileOut, data, 'binary');
+    await writeFile(fileOut, finalCatImage, 'binary');
     console.log('The cat file was saved!');
   } catch (error) {
     console.log(error);
