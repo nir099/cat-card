@@ -1,21 +1,8 @@
-const { writeFile } = require('fs').promises;
-const { join } = require('path');
-const request = require('request-promise');
-const blend = require('@mapbox/blend');
-const argv = require('minimist')(process.argv.slice(2));
-const catBaseURl = 'https://cataas.com';
-
-const catUrlMaker = ({ path, ...queryParameters }) => {
-  const newUrl = new URL(`cat/says/${path}`, catBaseURl);
-  newUrl.search = new URLSearchParams(Object.entries(queryParameters));
-  return { url: newUrl, encoding: 'binary', resolveWithFullResponse: true };
-};
-
-const sendCatRequest = async (alias = 'cat-request', requestS) => {
-  const { body, statusCode } = await request.get(requestS);
-  console.log('Received response to ' + alias + ' with status : ' + statusCode);
-  return body;
-};
+import { promises as fs } from 'fs';
+import { join } from 'path';
+import blend from '@mapbox/blend';
+import argv from 'minimist';
+import { catUrlMaker, sendCatRequest } from './utils.js';
 
 const makeFinalCatImage = async ({ firstCat, secondCat, width, height }) => {
   return await new Promise((res, rej) => {
@@ -57,9 +44,11 @@ const getTwoFunnyCats = async ({
 }) => {
   try {
     const firstCatUrl = catUrlMaker({ path: greeting, width, height, color, size });
-    const secondCatUrl = catUrlMaker({ path: who, width, height, color, size });
     const firstCat = await sendCatRequest('firstCat', firstCatUrl);
+
+    const secondCatUrl = catUrlMaker({ path: who, width, height, color, size });
     const secondCat = await sendCatRequest('secondCat', secondCatUrl);
+
     const finalCatImage = await makeFinalCatImage({
       firstCat,
       secondCat,
@@ -67,11 +56,11 @@ const getTwoFunnyCats = async ({
       height,
     });
     const fileOut = join(process.cwd(), `/cat-card.jpg`);
-    await writeFile(fileOut, finalCatImage, 'binary');
+    await fs.writeFile(fileOut, finalCatImage, 'binary');
     console.log('The cat file was saved!');
   } catch (error) {
     console.log(error);
   }
 };
 
-getTwoFunnyCats(argv);
+getTwoFunnyCats(argv(process.argv.slice(2)));

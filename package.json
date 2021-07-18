@@ -8,6 +8,7 @@
   },
   "author": "Nirmal Aththanayaka",
   "license": "ISC",
+  "type": "module",
   "dependencies": {
     "@mapbox/blend": "^2.0.1",
     "minimist": "^1.2.5",
